@@ -75,6 +75,15 @@ Prerequis (une fois) : cle API AMO sur
 https://addons.mozilla.org/developers/addon/api/key/ et secrets GitHub
 `AMO_JWT_ISSUER` / `AMO_JWT_SECRET` sur le repo.
 
+Chrome Web Store : la meme CI uploade et publie la nouvelle version si les
+secrets `CWS_EXTENSION_ID` / `CWS_CLIENT_ID` / `CWS_CLIENT_SECRET` /
+`CWS_REFRESH_TOKEN` sont configures (sinon le job passe sans rien faire).
+La fiche doit avoir ete creee une premiere fois a la main sur
+https://chrome.google.com/webstore/devconsole (visibilite "non repertoriee"),
+et les cles OAuth generees en suivant
+https://github.com/fregante/chrome-webstore-upload/blob/main/How%20to%20generate%20Google%20API%20keys.md.
+Le store gere l'auto-update des installations tout seul.
+
 Premiere installation chez quelqu'un : lui envoyer le `.xpi` de la derniere
 release (ou le lien), puis autoriser youtube.com dans about:addons →
 Permissions. Les mises a jour suivantes sont automatiques.

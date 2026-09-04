@@ -80,3 +80,56 @@ jobs:
           gh release create "v$V" "$XPI" updates.json \
             --title "Thumbnail Lab $V" \
             --notes "xpi signe par AMO. Installation : ouvrir le .xpi dans Firefox, puis autoriser youtube.com dans about:addons > Permissions. Les installations existantes se mettent a jour toutes seules."
+
+  # Chrome Web Store : upload + publish de la nouvelle version via l'API.
+  # La fiche doit avoir ete creee une premiere fois a la main sur le devconsole.
+  # Skip silencieux tant que les secrets CWS_* ne sont pas configures.
+  chrome-web-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read manifest version
+        id: v
+        run: echo "version=$(jq -r .version manifest.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if this version is already released
+        id: tag
+        run: |
+          if git ls-remote --exit-code --tags origin "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check CWS credentials
+        id: creds
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        run: |
+          if [ -z "$CWS_EXTENSION_ID" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets CWS_* absents, publication Chrome ignoree."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build zip
+        if: steps.tag.outputs.exists == 'false' && steps.creds.outputs.configured == 'true'
+        run: zip -r build.zip manifest.json content.js popup/ icons/
+
+      - uses: actions/setup-node@v4
+        if: steps.tag.outputs.exists == 'false' && steps.creds.outputs.configured == 'true'
+        with:
+          node-version: 20
+
+      - name: Upload and publish to Chrome Web Store
+        if: steps.tag.outputs.exists == 'false' && steps.creds.outputs.configured == 'true'
+        env:
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: npx chrome-webstore-upload-cli@3 upload --source build.zip --auto-publish
