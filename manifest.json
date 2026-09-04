@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Thumbnail Lab",
+  "version": "0.1.0",
+  "description": "Injecte tes miniatures et titres dans l'UI YouTube pour juger le rendu en conditions reelles.",
+  "permissions": ["storage"],
+  "host_permissions": ["*://*.youtube.com/*"],
+  "action": {
+    "default_title": "Thumbnail Lab",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "thumbnail-lab@theogalh.dev",
+      "strict_min_version": "115.0"
+    }
+  }
+}

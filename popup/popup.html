@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="theogalh.css">
+  <link rel="stylesheet" href="popup.css">
+  <title>Thumbnail Lab</title>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="wordmark">thumblab<span class="dot"></span></span>
+  <button class="btn btn-ghost btn-sm" type="button" id="open-tab"
+          title="Open in a tab (the popup closes when the file picker steals focus)">↗ Tab</button>
+  <label class="switch">
+    <input type="checkbox" id="enabled">
+    <span class="track"></span>
+    Active
+  </label>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">theogalh.dev · youtube</p>
+    <p class="sub" id="status">Pool empty. Add a thumbnail to start.</p>
+  </div>
+
+  <section class="section panel">
+    <h2 class="section-title">Title</h2>
+    <div class="field">
+      <label class="field-label" for="title">Applied to every injected thumbnail. Empty = keep original titles.</label>
+      <input id="title" type="text" placeholder="J'ai construit un homelab dans un frigo" autocomplete="off">
+    </div>
+  </section>
+
+  <section class="section panel">
+    <h2 class="section-title">New thumbnail</h2>
+    <form class="form" id="add-form">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button">
+        <div class="dz-title">Drop an image or <strong>browse</strong></div>
+        <div class="dz-hint">Resized to 640×360 before storage.</div>
+        <div class="dz-fine">PNG, JPG, WEBP</div>
+      </div>
+      <img id="preview" alt="" hidden>
+      <input type="file" id="file" accept="image/*" hidden>
+      <div class="action-row">
+        <button class="btn btn-primary" type="submit" id="add">Add to pool</button>
+        <button class="btn btn-ghost" type="button" id="reset">Clear form</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="section panel">
+    <h2 class="section-title">Replacement rate</h2>
+    <div class="seg" id="rate" role="radiogroup" aria-label="Replacement rate">
+      <button type="button" data-rate="10">10%</button>
+      <button type="button" data-rate="30">30%</button>
+      <button type="button" data-rate="60">60%</button>
+      <button type="button" data-rate="100">All</button>
+    </div>
+    <div class="hairline"></div>
+    <label class="switch">
+      <input type="checkbox" id="marker" checked>
+      <span class="track"></span>
+      Outline injected thumbnails
+    </label>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Pool <span class="plate mono" id="count">0</span></h2>
+    <div id="list"></div>
+  </section>
+</main>
+
+<footer class="footer">theogalh.dev · thumbnail lab · reload the tab after disabling</footer>
+
+<script src="popup.js"></script>
+</body>
+</html>
