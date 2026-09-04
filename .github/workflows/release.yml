@@ -1,0 +1,82 @@
+name: Release
+
+# A chaque push sur main : si la version du manifest n'a pas encore de tag,
+# fait signer le module par AMO (canal unlisted), publie le .xpi signe en
+# release GitHub et regenere updates.json (auto-update Firefox via le
+# update_url du manifest, qui pointe sur releases/latest).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sign-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read manifest version
+        id: v
+        run: echo "version=$(jq -r .version manifest.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if this version is already released
+        id: tag
+        run: |
+          if git ls-remote --exit-code --tags origin "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "v${{ steps.v.outputs.version }} deja publie, rien a faire."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check AMO credentials
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          if [ -z "${{ secrets.AMO_JWT_ISSUER }}" ] || [ -z "${{ secrets.AMO_JWT_SECRET }}" ]; then
+            echo "::error::Secrets AMO_JWT_ISSUER / AMO_JWT_SECRET manquants. Cle API : https://addons.mozilla.org/developers/addon/api/key/"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.tag.outputs.exists == 'false'
+        with:
+          node-version: 20
+
+      - name: Sign on AMO (unlisted)
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          npm install -g web-ext
+          web-ext sign \
+            --channel=unlisted \
+            --api-key="${{ secrets.AMO_JWT_ISSUER }}" \
+            --api-secret="${{ secrets.AMO_JWT_SECRET }}" \
+            --ignore-files README.md thumbnail-lab.zip
+
+      - name: Publish GitHub release with xpi and updates.json
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          XPI="thumbnail_lab-$V.xpi"
+          mv web-ext-artifacts/*.xpi "$XPI"
+          cat > updates.json <<EOF
+          {
+            "addons": {
+              "thumbnail-lab@theogalh.dev": {
+                "updates": [
+                  {
+                    "version": "$V",
+                    "update_link": "https://github.com/${{ github.repository }}/releases/download/v$V/$XPI"
+                  }
+                ]
+              }
+            }
+          }
+          EOF
+          gh release create "v$V" "$XPI" updates.json \
+            --title "Thumbnail Lab $V" \
+            --notes "xpi signe par AMO. Installation : ouvrir le .xpi dans Firefox, puis autoriser youtube.com dans about:addons > Permissions. Les installations existantes se mettent a jour toutes seules."

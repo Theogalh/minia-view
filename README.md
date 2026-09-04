@@ -62,6 +62,23 @@ images depuis l'extension : les ecrire dans `web_accessible_resources` et utilis
 `chrome.runtime.getURL(...)`, qui est exempte de la CSP de la page. Cela suppose
 de packager les images plutot que de les uploader depuis le popup.
 
+## Release
+
+Push sur `main` avec une nouvelle `version` dans le manifest → la CI
+(`.github/workflows/release.yml`) fait signer le module par AMO (canal
+unlisted), publie le `.xpi` signe en release GitHub `vX.Y.Z` et regenere
+`updates.json`. Le `update_url` du manifest pointe sur
+`releases/latest/download/updates.json` : Firefox met a jour tout seul les
+installations existantes. Si la version a deja un tag, la CI ne fait rien.
+
+Prerequis (une fois) : cle API AMO sur
+https://addons.mozilla.org/developers/addon/api/key/ et secrets GitHub
+`AMO_JWT_ISSUER` / `AMO_JWT_SECRET` sur le repo.
+
+Premiere installation chez quelqu'un : lui envoyer le `.xpi` de la derniere
+release (ou le lien), puis autoriser youtube.com dans about:addons →
+Permissions. Les mises a jour suivantes sont automatiques.
+
 ## Limites assumees
 
 - Les Shorts et le lecteur video ne sont pas traites, seulement les cards.
