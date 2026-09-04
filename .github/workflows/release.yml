@@ -53,7 +53,7 @@ jobs:
             --channel=unlisted \
             --api-key="${{ secrets.AMO_JWT_ISSUER }}" \
             --api-secret="${{ secrets.AMO_JWT_SECRET }}" \
-            --ignore-files README.md thumbnail-lab.zip
+            --ignore-files README.md thumbnail-lab.zip "store/**"
 
       - name: Publish GitHub release with xpi and updates.json
         if: steps.tag.outputs.exists == 'false'
@@ -119,6 +119,7 @@ jobs:
       - name: Build zip
         if: steps.tag.outputs.exists == 'false' && steps.creds.outputs.configured == 'true'
         run: zip -r build.zip manifest.json content.js popup/ icons/
+        # store/ et README exclus d'office : on ne zippe que ce qui est liste
 
       - uses: actions/setup-node@v4
         if: steps.tag.outputs.exists == 'false' && steps.creds.outputs.configured == 'true'
