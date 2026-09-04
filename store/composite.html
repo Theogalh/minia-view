@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../popup/theogalh.css">
+<link rel="stylesheet" href="../popup/popup.css">
+<style>
+  html, body { overflow: hidden; }
+  ::-webkit-scrollbar { display: none; }
+  body { width: 1280px; height: 800px; margin: 0; position: relative; background: #0B0C10; }
+  /* leger zoom pour rogner la scrollbar baked dans la capture (bord droit) */
+  .shot { position: absolute; top: 0; left: 0; width: 1294px; height: 809px; }
+  .popup-shell {
+    position: absolute; top: 14px; right: 18px; width: 400px;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.4);
+  }
+</style>
+</head>
+<body>
+
+<img class="shot" src="yt-base.png" alt="">
+
+<div class="popup-shell">
+  <header class="topbar">
+    <span class="wordmark">thumblab<span class="dot"></span></span>
+    <button class="btn btn-ghost btn-sm" type="button">↗ Tab</button>
+    <label class="switch">
+      <input type="checkbox" checked>
+      <span class="track"></span>
+      Active
+    </label>
+  </header>
+
+  <main class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">theogalh.dev · youtube</p>
+      <p class="sub">2 in pool. Replacing 60% of videos.</p>
+    </div>
+
+    <section class="section panel">
+      <h2 class="section-title">Title</h2>
+      <div class="field">
+        <label class="field-label">Applied to every injected thumbnail. Empty = keep original titles.</label>
+        <input type="text" value="J'ai construit un homelab dans un frigo" readonly>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2 class="section-title">Replacement rate</h2>
+      <div class="seg" role="radiogroup">
+        <button type="button">10%</button>
+        <button type="button">30%</button>
+        <button type="button" class="active" aria-checked="true">60%</button>
+        <button type="button">All</button>
+      </div>
+      <div class="hairline"></div>
+      <label class="switch">
+        <input type="checkbox" checked>
+        <span class="track"></span>
+        Outline injected thumbnails
+      </label>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Pool <span class="plate mono">2</span></h2>
+      <div id="list"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // miniatures demo du pool, dessinees en canvas
+  function mini(bg, txt1, txt2) {
+    const c = document.createElement("canvas");
+    c.width = 640; c.height = 360;
+    const x = c.getContext("2d");
+    const g = x.createLinearGradient(0, 0, 640, 360);
+    g.addColorStop(0, bg); g.addColorStop(1, "#0B0C10");
+    x.fillStyle = g; x.fillRect(0, 0, 640, 360);
+    x.fillStyle = "rgba(139,147,248,.14)";
+    x.beginPath(); x.arc(560, 60, 130, 0, 7); x.fill();
+    x.fillStyle = "#EDEEF3";
+    x.font = "800 92px system-ui, sans-serif";
+    x.fillText(txt1, 42, 170);
+    x.fillStyle = "#8B93F8";
+    x.font = "700 58px system-ui, sans-serif";
+    x.fillText(txt2, 44, 248);
+    return c.toDataURL("image/jpeg", 0.9);
+  }
+  const thumbs = [
+    mini("#14161D", "HOMELAB", "dans un frigo"),
+    mini("#1A1D27", "HOMELAB", "v2 : le congelo")
+  ];
+  const list = document.getElementById("list");
+  for (const src of thumbs) {
+    const row = document.createElement("div");
+    row.className = "pool-row";
+    const img = document.createElement("img");
+    img.src = src;
+    const main = document.createElement("span");
+    main.className = "row-main";
+    const del = document.createElement("button");
+    del.className = "btn btn-danger btn-sm";
+    del.textContent = "Delete";
+    row.append(img, main, del);
+    list.append(row);
+  }
+</script>
+</body>
+</html>
