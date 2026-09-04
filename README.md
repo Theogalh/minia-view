@@ -4,7 +4,19 @@ Extension MV3 (Chrome + Firefox) qui remplace une partie des miniatures et titre
 de l'interface YouTube par les tiens, pour juger un visuel en conditions reelles :
 dans la grille d'accueil, la recherche, et la colonne "up next".
 
-## Installation
+## Installation (utilisateurs)
+
+**Firefox**
+1. Telecharger le `.xpi` de la [derniere release](https://github.com/Theogalh/minia-view/releases/latest)
+2. L'ouvrir dans Firefox (glisser le fichier dans une fenetre, ou Ctrl+O) → "Ajouter"
+3. `about:addons` → Thumbnail Lab → onglet **Permissions** → autoriser youtube.com
+4. Les mises a jour sont ensuite automatiques
+
+**Chrome** : fiche Chrome Web Store en cours de review. En attendant :
+telecharger le repo (Code → Download ZIP), le dezipper, puis
+`chrome://extensions` → mode developpeur → "Charger l'extension non empaquetee".
+
+## Installation (developpement)
 
 **Chrome / Edge / Brave**
 1. `chrome://extensions`
