@@ -6,15 +6,17 @@ dans la grille d'accueil, la recherche, et la colonne "up next".
 
 ## Installation (utilisateurs)
 
-**Firefox**
-1. Telecharger le `.xpi` de la [derniere release](https://github.com/Theogalh/minia-view/releases/latest)
-2. L'ouvrir dans Firefox (glisser le fichier dans une fenetre, ou Ctrl+O) → "Ajouter"
-3. `about:addons` → Thumbnail Lab → onglet **Permissions** → autoriser youtube.com
-4. Les mises a jour sont ensuite automatiques
+**Firefox** : depuis la fiche publique AMO (des validation par Mozilla :
+https://addons.mozilla.org/firefox/addon/thumbnail-lab/) → "Ajouter a Firefox",
+puis `about:addons` → Thumbnail Lab → onglet **Permissions** → autoriser
+youtube.com. Mises a jour automatiques via AMO.
 
-**Chrome** : fiche Chrome Web Store en cours de review. En attendant :
-telecharger le repo (Code → Download ZIP), le dezipper, puis
-`chrome://extensions` → mode developpeur → "Charger l'extension non empaquetee".
+En attendant la validation : `.xpi` auto-distribue de la
+[release v0.1.4](https://github.com/Theogalh/minia-view/releases/tag/v0.1.4)
+(glisser le fichier dans Firefox), a remplacer par la version AMO ensuite.
+
+**Chrome** : [fiche Chrome Web Store](https://chromewebstore.google.com/detail/thumbnail-lab/pfjeibbkndbmloeimooadnafcejaemdp)
+→ "Ajouter a Chrome". Mises a jour automatiques via le store.
 
 ## Installation (developpement)
 
@@ -77,11 +79,12 @@ de packager les images plutot que de les uploader depuis le popup.
 ## Release
 
 Push sur `main` avec une nouvelle `version` dans le manifest → la CI
-(`.github/workflows/release.yml`) fait signer le module par AMO (canal
-unlisted), publie le `.xpi` signe en release GitHub `vX.Y.Z` et regenere
-`updates.json`. Le `update_url` du manifest pointe sur
-`releases/latest/download/updates.json` : Firefox met a jour tout seul les
-installations existantes. Si la version a deja un tag, la CI ne fait rien.
+(`.github/workflows/release.yml`) soumet la version au canal **public** d'AMO
+(la publication effective attend la review Mozilla ; AMO gere ensuite les
+mises a jour des utilisateurs) et cree un tag/release `vX.Y.Z` comme
+garde-fou anti-double-soumission. Pas d'`update_url` dans le manifest :
+interdit sur le canal listed, AMO s'en charge. Si la version a deja un tag,
+la CI ne fait rien.
 
 Prerequis (une fois) : cle API AMO sur
 https://addons.mozilla.org/developers/addon/api/key/ et secrets GitHub

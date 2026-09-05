@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Thumbnail Lab",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Injecte tes miniatures et titres dans l'UI YouTube pour juger le rendu en conditions reelles.",
   "permissions": ["storage"],
   "host_permissions": ["*://*.youtube.com/*"],
@@ -31,7 +31,6 @@
     "gecko": {
       "id": "thumbnail-lab@theogalh.dev",
       "strict_min_version": "115.0",
-      "update_url": "https://github.com/Theogalh/minia-view/releases/latest/download/updates.json",
       "data_collection_permissions": {
         "required": ["none"]
       }

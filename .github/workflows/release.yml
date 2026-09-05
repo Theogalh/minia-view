@@ -1,9 +1,10 @@
 name: Release
 
 # A chaque push sur main : si la version du manifest n'a pas encore de tag,
-# fait signer le module par AMO (canal unlisted), publie le .xpi signe en
-# release GitHub et regenere updates.json (auto-update Firefox via le
-# update_url du manifest, qui pointe sur releases/latest).
+# soumet la version au canal PUBLIC d'AMO (listed) — la publication effective
+# attend la review Mozilla, AMO gere ensuite l'auto-update des utilisateurs —
+# et publie la meme version sur le Chrome Web Store. Un tag vX.Y.Z sert de
+# garde-fou anti-double-soumission.
 on:
   push:
     branches: [main]
@@ -45,41 +46,28 @@ jobs:
         with:
           node-version: 20
 
-      - name: Sign on AMO (unlisted)
+      - name: Submit to AMO (listed channel)
         if: steps.tag.outputs.exists == 'false'
         run: |
           npm install -g web-ext
+          # --approval-timeout=0 : on soumet sans attendre la review Mozilla
+          # (la publication arrive apres validation, cote AMO).
           web-ext sign \
-            --channel=unlisted \
+            --channel=listed \
+            --approval-timeout=0 \
             --api-key="${{ secrets.AMO_JWT_ISSUER }}" \
             --api-secret="${{ secrets.AMO_JWT_SECRET }}" \
             --ignore-files README.md thumbnail-lab.zip "store/**"
 
-      - name: Publish GitHub release with xpi and updates.json
+      - name: Tag the released version
         if: steps.tag.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           V="${{ steps.v.outputs.version }}"
-          XPI="thumbnail_lab-$V.xpi"
-          mv web-ext-artifacts/*.xpi "$XPI"
-          cat > updates.json <<EOF
-          {
-            "addons": {
-              "thumbnail-lab@theogalh.dev": {
-                "updates": [
-                  {
-                    "version": "$V",
-                    "update_link": "https://github.com/${{ github.repository }}/releases/download/v$V/$XPI"
-                  }
-                ]
-              }
-            }
-          }
-          EOF
-          gh release create "v$V" "$XPI" updates.json \
+          gh release create "v$V" \
             --title "Thumbnail Lab $V" \
-            --notes "xpi signe par AMO. Installation : ouvrir le .xpi dans Firefox, puis autoriser youtube.com dans about:addons > Permissions. Les installations existantes se mettent a jour toutes seules."
+            --notes "Soumise a la review AMO (canal public) et publiee sur le Chrome Web Store. Installation et mises a jour via les fiches des stores."
 
   # Chrome Web Store : upload + publish de la nouvelle version via l'API.
   # La fiche doit avoir ete creee une premiere fois a la main sur le devconsole.
